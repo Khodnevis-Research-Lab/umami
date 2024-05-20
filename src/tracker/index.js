@@ -104,7 +104,7 @@
   }
 
   const saveUserTrackId = userId => {
-    setCookie(userTrackIDCookie, userId);
+    if (typeof userId === 'string') setCookie(userTrackIDCookie, userId);
   };
 
   const getPayload = () => ({
