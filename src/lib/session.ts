@@ -27,7 +27,7 @@ export async function getSession(req: NextApiRequestCollect): Promise<SessionDat
   }
 
   // Verify payload
-  const { website: websiteId, hostname, screen, language } = payload;
+  const { website: websiteId, hostname, screen, language, userTrackID } = payload;
 
   // Find website
   const website = await fetchWebsite(websiteId);
@@ -80,6 +80,7 @@ export async function getSession(req: NextApiRequestCollect): Promise<SessionDat
         subdivision1,
         subdivision2,
         city,
+        userTrackID,
       });
     } catch (e: any) {
       if (!e.message.toLowerCase().includes('unique constraint')) {

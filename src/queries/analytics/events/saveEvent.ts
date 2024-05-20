@@ -27,6 +27,7 @@ export async function saveEvent(args: {
   subdivision1?: string;
   subdivision2?: string;
   city?: string;
+  userTrackID?: string;
 }) {
   return runQuery({
     [PRISMA]: () => relationalQuery(args),

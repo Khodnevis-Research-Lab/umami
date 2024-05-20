@@ -31,6 +31,7 @@ export interface CollectRequestBody {
     tag?: string;
     title?: string;
     url: string;
+    userTrackID?: string;
   };
   type: CollectionType;
 }
@@ -70,6 +71,7 @@ const schema = {
         screen: yup.string().max(11),
         title: yup.string(),
         url: yup.string(),
+        userTrackID: yup.string(),
         website: yup.string().uuid().required(),
         name: yup.string().max(50),
         tag: yup.string().max(50).nullable(),
@@ -97,7 +99,7 @@ export default async (req: NextApiRequestCollect, res: NextApiResponse) => {
     }
 
     const { type, payload } = req.body;
-    const { url, referrer, name: eventName, data, title } = payload;
+    const { url, referrer, name: eventName, data, title, userTrackID } = payload;
     const pageTitle = safeDecodeURI(title);
 
     await useSession(req, res);
@@ -145,6 +147,7 @@ export default async (req: NextApiRequestCollect, res: NextApiResponse) => {
         ...session,
         sessionId: session.id,
         visitId: session.visitId,
+        userTrackID,
       });
     }
 
