@@ -40,7 +40,8 @@ export async function getSession(req: NextApiRequestCollect): Promise<SessionDat
     await getClientInfo(req);
 
   const sessionId = uuid(websiteId, hostname, ip, userAgent, userTrackID);
-  const visitId = uuid(sessionId, visitSalt());
+  const sessionSalt = uuid(websiteId, hostname, ip, userAgent);
+  const visitId = uuid(sessionSalt, visitSalt());
 
   // Clickhouse does not require session lookup
   if (clickhouse.enabled) {
