@@ -30,8 +30,25 @@
   const eventRegex = /data-umami-event-([\w-_]+)/;
   const eventNameAttribute = _data + 'umami-event';
   const delayDuration = 300;
+  const userTrackIDCookie = 'growthIQ-trid';
 
   /* Helper functions */
+
+  function uuid() {
+    // Get the current time in milliseconds since the Unix epoch.
+    var dt = new Date().getTime();
+    // Replace the placeholders in the UUID template with random hexadecimal characters.
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      // Generate a random hexadecimal digit.
+      var r = (dt + Math.random() * 16) % 16 | 0;
+      // Update dt to simulate passage of time for the next random character.
+      dt = Math.floor(dt / 16);
+      // Replace 'x' with a random digit and 'y' with a specific digit (4 for UUID version 4).
+      return (c == 'x' ? r : (r & 0x3) | 0x8).toString(16);
+    });
+    // Return the generated UUID.
+    return uuid;
+  }
 
   const encode = str => {
     if (!str) {
@@ -61,6 +78,35 @@
     return excludeSearch ? url.split('?')[0] : url;
   };
 
+  function setCookie(cookieName, value, expireDays) {
+    const date = new Date();
+    const exDays = expireDays || 1000;
+    date.setTime(date.getTime() + exDays * 24 * 60 * 60 * 1000);
+    const expires = `expires=${date.toUTCString()}`;
+    const domain = window.location.hostname;
+    const secure = 'secure';
+    document.cookie = `${cookieName}=${value};${expires};path=/; domain=${domain}; ${secure}; sameSite=strict;`;
+  }
+
+  function getCookie(cookieName) {
+    const name = cookieName + '=';
+    const cookiesList = document.cookie.split(';');
+    for (let i = 0; i < cookiesList.length; i++) {
+      let cookie = cookiesList[i];
+      while (cookie.charAt(0) == ' ') {
+        cookie = cookie.substring(1);
+      }
+      if (cookie.indexOf(name) == 0) {
+        return cookie.substring(name.length, cookie.length);
+      }
+    }
+    return '';
+  }
+
+  const saveUserTrackId = userId => {
+    if (typeof userId === 'string') setCookie(userTrackIDCookie, userId);
+  };
+
   const getPayload = () => ({
     website,
     hostname,
@@ -70,7 +116,16 @@
     url: encode(currentUrl),
     referrer: encode(currentRef),
     tag: tag ? tag : undefined,
+    userTrackID: getCookie(userTrackIDCookie),
   });
+
+  // set a random cookie if not exist
+  const initUserTrackIdCookie = () => {
+    const trackIdCookie = getCookie(userTrackIDCookie);
+    if (!trackIdCookie) {
+      setCookie(userTrackIDCookie, uuid());
+    }
+  };
 
   /* Event handlers */
 
@@ -244,6 +299,10 @@
     };
   }
 
+  if (!window.saveUserID) {
+    window.saveUserID = saveUserTrackId;
+  }
+
   let currentUrl = parseURL(href);
   let currentRef = referrer !== hostname ? referrer : '';
   let title = document.title;
@@ -254,6 +313,7 @@
     handlePathChanges();
     handleTitleChanges();
     handleClicks();
+    initUserTrackIdCookie();
 
     const init = () => {
       if (document.readyState === 'complete' && !initialized) {
