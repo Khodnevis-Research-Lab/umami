@@ -78,12 +78,16 @@
     return excludeSearch ? url.split('?')[0] : url;
   };
 
+  function getDomainName(hostName) {
+    return hostName.substring(hostName.lastIndexOf('.', hostName.lastIndexOf('.') - 1) + 1);
+  }
+
   function setCookie(cookieName, value, expireDays) {
     const date = new Date();
     const exDays = expireDays || 1000;
     date.setTime(date.getTime() + exDays * 24 * 60 * 60 * 1000);
     const expires = `expires=${date.toUTCString()}`;
-    const domain = window.location.hostname;
+    const domain = `.${getDomainName(window.location.hostname)}`;
     const secure = 'secure';
     document.cookie = `${cookieName}=${value};${expires};path=/; domain=${domain}; ${secure}; sameSite=strict;`;
   }
