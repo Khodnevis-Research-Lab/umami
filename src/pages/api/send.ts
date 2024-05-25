@@ -53,6 +53,7 @@ export interface NextApiRequestCollect extends NextApiRequest {
     subdivision2: string;
     city: string;
     iat: number;
+    userTrackID: string;
   };
   headers: { [key: string]: any };
   yup: YupRequest;
@@ -113,6 +114,7 @@ export default async (req: NextApiRequestCollect, res: NextApiResponse) => {
     }
 
     session.iat = iat;
+    session.userTrackID = userTrackID;
 
     if (type === COLLECTION_TYPE.event) {
       // eslint-disable-next-line prefer-const
