@@ -21,7 +21,7 @@ export async function getSession(req: NextApiRequestCollect): Promise<SessionDat
     const result = await parseToken(cacheToken, secret());
 
     // Token is valid
-    if (result) {
+    if (result && result.userTrackID === payload.userTrackID) {
       return result;
     }
   }
